@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Gemini CLI: Code & Create with an Open-Source Agent
 
 This repository contains resources for the DeepLearning.AI short course on Gemini CLI.
@@ -30,3 +31,7 @@ The course teaches Gemini CLI best practices with practical examples:
 - `final_files/` - Completed final files as they would exist at the end of the course, after all changes have been made.
 - `prompts/` - Prompt templates and files from each lesson, plus bonus tips and commands.
 - `materials/` - Additional materials such as Google Docs, Google Sheets, and Canva resources used in the course.
+=======
+# sc-gemini-cli-files-main
+gemini cli testing
+>>>>>>> c22dfea2704c2396173ad5de7f87033b313536a5
