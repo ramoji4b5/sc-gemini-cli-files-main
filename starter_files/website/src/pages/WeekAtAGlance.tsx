@@ -17,7 +17,7 @@ export const WeekAtAGlance = () => {
           <p className="text-slate-600 dark:text-slate-400">A high-level overview of the summit schedule.</p>
         </motion.div>
 
-        <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
             {
               day: "Day 1",

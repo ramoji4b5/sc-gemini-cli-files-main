@@ -1,30 +1,74 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Filter, Calendar, MapPin, Clock, ArrowRight, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate
 import { SESSIONS, type Session } from '../data/sessions';
 
 export const Catalog = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDay, setSelectedDay] = useState<string>('All');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+
+  // Initialize states from URL or default values
+  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
+  const [selectedDay, setSelectedDay] = useState(queryParams.get('day') || 'All');
+  const [selectedCategory, setSelectedCategory] = useState(queryParams.get('category') || 'All');
+  const [selectedSpeaker, setSelectedSpeaker] = useState(queryParams.get('speaker') || 'All');
+  const [selectedLevel, setSelectedLevel] = useState(queryParams.get('level') || 'All');
+  const [selectedTrack, setSelectedTrack] = useState(queryParams.get('track') || 'All');
+
+  // Update URL whenever filter states change
+  useEffect(() => {
+    const newQueryParams = new URLSearchParams();
+    if (searchQuery) newQueryParams.set('search', searchQuery);
+    if (selectedDay !== 'All') newQueryParams.set('day', selectedDay);
+    if (selectedCategory !== 'All') newQueryParams.set('category', selectedCategory);
+    if (selectedSpeaker !== 'All') newQueryParams.set('speaker', selectedSpeaker);
+    if (selectedLevel !== 'All') newQueryParams.set('level', selectedLevel);
+    if (selectedTrack !== 'All') newQueryParams.set('track', selectedTrack);
+
+    navigate({ search: newQueryParams.toString() }, { replace: true });
+  }, [searchQuery, selectedDay, selectedCategory, selectedSpeaker, selectedLevel, selectedTrack, navigate]);
 
   const days = ['All', 'Day 1', 'Day 2', 'Day 3'];
   const categories = ['All', 'Keynote', 'Breakout', 'Customer Story', 'Learning Lab', 'Expo'];
+  
+  // Extract unique speakers, levels, and tracks
+  const allSpeakers = useMemo(() => {
+    const speakers = SESSIONS.map(session => session.speaker).flat();
+    return ['All', ...Array.from(new Set(speakers))].sort();
+  }, [SESSIONS]);
+
+  const allLevels = useMemo(() => {
+    const levels = SESSIONS.map(session => session.details?.level).filter(Boolean) as string[];
+    return ['All', ...Array.from(new Set(levels))].sort((a, b) => {
+      const order = { 'Beginner': 1, 'Intermediate': 2, 'Advanced': 3, 'All': 0 };
+      return (order[a as keyof typeof order] || 0) - (order[b as keyof typeof order] || 0);
+    });
+  }, [SESSIONS]);
+
+  const allTracks = useMemo(() => {
+    const tracks = SESSIONS.map(session => session.details?.tracks || []).flat();
+    return ['All', ...Array.from(new Set(tracks))].sort();
+  }, [SESSIONS]);
 
   const filteredSessions = useMemo<Session[]>(() => {
     return SESSIONS.filter(session => {
-      const matchesSearch = 
+      const matchesSearch =
         session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         session.speaker.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        session.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+        session.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (session.details?.fullDescription && session.details.fullDescription.toLowerCase().includes(searchQuery.toLowerCase()));
+
       const matchesDay = selectedDay === 'All' || session.day === selectedDay;
       const matchesCategory = selectedCategory === 'All' || session.category === selectedCategory;
+      const matchesSpeaker = selectedSpeaker === 'All' || session.speaker === selectedSpeaker;
+      const matchesLevel = selectedLevel === 'All' || session.details?.level === selectedLevel;
+      const matchesTrack = selectedTrack === 'All' || session.details?.tracks?.includes(selectedTrack);
 
-      return matchesSearch && matchesDay && matchesCategory;
+      return matchesSearch && matchesDay && matchesCategory && matchesSpeaker && matchesLevel && matchesTrack;
     });
-  }, [searchQuery, selectedDay, selectedCategory]);
+  }, [searchQuery, selectedDay, selectedCategory, selectedSpeaker, selectedLevel, selectedTrack]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-12">
@@ -55,10 +99,11 @@ export const Catalog = () => {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Day Filter */}
-              <div className="relative min-w-[140px]">
+              <div className="relative">
                 <select
+                  aria-label="Filter by Day"
                   value={selectedDay}
                   onChange={(e) => setSelectedDay(e.target.value)}
                   className="block w-full pl-3 pr-10 py-3 text-base border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white appearance-none cursor-pointer"
@@ -73,14 +118,66 @@ export const Catalog = () => {
               </div>
 
               {/* Category Filter */}
-              <div className="relative min-w-[180px]">
+              <div className="relative">
                 <select
+                  aria-label="Filter by Category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="block w-full pl-3 pr-10 py-3 text-base border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white appearance-none cursor-pointer"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                  <Filter className="h-4 w-4" />
+                </div>
+              </div>
+
+              {/* Speaker Filter */}
+              <div className="relative">
+                <select
+                  aria-label="Filter by Speaker"
+                  value={selectedSpeaker}
+                  onChange={(e) => setSelectedSpeaker(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-3 text-base border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white appearance-none cursor-pointer"
+                >
+                  {allSpeakers.map((speaker) => (
+                    <option key={speaker} value={speaker}>{speaker}</option>
+                  ))}
+                </select>
+                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                  <User className="h-4 w-4" />
+                </div>
+              </div>
+
+              {/* Level Filter */}
+              <div className="relative">
+                <select
+                  aria-label="Filter by Level"
+                  value={selectedLevel}
+                  onChange={(e) => setSelectedLevel(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-3 text-base border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white appearance-none cursor-pointer"
+                >
+                  {allLevels.map((level) => (
+                    <option key={level} value={level}>{level}</option>
+                  ))}
+                </select>
+                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                  <Filter className="h-4 w-4" />
+                </div>
+              </div>
+
+              {/* Tracks Filter */}
+              <div className="relative">
+                <select
+                  aria-label="Filter by Track"
+                  value={selectedTrack}
+                  onChange={(e) => setSelectedTrack(e.target.value)}
+                  className="block w-full pl-3 pr-10 py-3 text-base border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white appearance-none cursor-pointer"
+                >
+                  {allTracks.map((track) => (
+                    <option key={track} value={track}>{track}</option>
                   ))}
                 </select>
                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
