@@ -13,6 +13,7 @@ vi.mock('../lazyLoad', () => ({
   loadSponsors: vi.fn(),
   loadRegistration: vi.fn(),
   loadTravelAndHotels: vi.fn(),
+  loadSocials: vi.fn(),
 }));
 
 describe('Layout Component', () => {
