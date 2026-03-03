@@ -1,4 +1,4 @@
-import { Session } from './types';
+import type { Session } from './types';
 import { sampleSessions } from './sampleSessions';
 
 export type { Session };
