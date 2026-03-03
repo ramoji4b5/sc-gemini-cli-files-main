@@ -1,5 +1,29 @@
-
 import { Download } from 'lucide-react';
+
+interface Color {
+  name: string;
+  hex: string;
+}
+
+interface ColorPaletteProps {
+  title: string;
+  colorList: Color[];
+}
+
+const ColorPalette = ({ title, colorList }: ColorPaletteProps) => (
+  <div>
+    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {colorList.map((color) => (
+        <div key={color.name} className="p-4 rounded-lg bg-slate-100 dark:bg-slate-800">
+          <div className="w-full h-16 rounded" style={{ backgroundColor: color.hex }}></div>
+          <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">{color.name}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400">{color.hex}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export const Socials = () => {
   const fonts = {
@@ -29,21 +53,6 @@ export const Socials = () => {
   const assets = [
     { name: 'Logo SVG', path: '/logo.svg', preview: '/logo.svg' },
   ];
-
-  const ColorPalette = ({ title, colorList }) => (
-    <div>
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {colorList.map((color) => (
-          <div key={color.name} className="p-4 rounded-lg bg-slate-100 dark:bg-slate-800">
-            <div className="w-full h-16 rounded" style={{ backgroundColor: color.hex }}></div>
-            <div className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">{color.name}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">{color.hex}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

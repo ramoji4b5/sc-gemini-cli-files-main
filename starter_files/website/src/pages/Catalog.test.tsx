@@ -5,14 +5,14 @@ import { Catalog } from './Catalog';
 
 // Mock react-router-dom hooks
 const mockUseLocation = vi.fn();
-const mockUseNavigate = vi.fn(() => vi.fn()); // Mock useNavigate to return a mock function
+const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
     useLocation: () => mockUseLocation(),
-    useNavigate: () => mockUseNavigate(),
+    useNavigate: () => mockNavigate,
   };
 });
 
@@ -116,7 +116,7 @@ describe('Catalog Page', () => {
   beforeEach(() => {
     // Reset mocks before each test
     mockUseLocation.mockReturnValue({ search: '' });
-    mockUseNavigate.mockReset();
+    mockNavigate.mockReset();
   });
 
   it('renders all sessions initially', () => {
@@ -209,7 +209,7 @@ describe('Catalog Page', () => {
     expect(screen.getByText('Customer Story: AI in Healthcare')).toBeInTheDocument();
     expect(screen.getByText('Advanced Data Visualization with D3.js')).toBeInTheDocument();
     expect(screen.getByText('Showing 2 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'day=Day+2' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'day=Day+2' }, { replace: true });
   });
 
   it('filters by Category', async () => {
@@ -227,7 +227,7 @@ describe('Catalog Page', () => {
     expect(screen.getByText('Deep Learning for Beginners')).toBeInTheDocument();
     expect(screen.getByText('Advanced Data Visualization with D3.js')).toBeInTheDocument();
     expect(screen.getByText('Showing 2 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'category=Learning+Lab' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'category=Learning+Lab' }, { replace: true });
   });
 
   it('filters by Speaker', async () => {
@@ -243,7 +243,7 @@ describe('Catalog Page', () => {
       expect(screen.getByText('Scaling Microservices with Kubernetes')).toBeInTheDocument();
     });
     expect(screen.getByText('Showing 1 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'speaker=Maria+Garcia' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'speaker=Maria+Garcia' }, { replace: true });
   });
 
   it('filters by Level', async () => {
@@ -259,7 +259,7 @@ describe('Catalog Page', () => {
       expect(screen.getByText('Deep Learning for Beginners')).toBeInTheDocument();
     });
     expect(screen.getByText('Showing 1 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'level=Beginner' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'level=Beginner' }, { replace: true });
   });
 
   it('filters by Track', async () => {
@@ -275,7 +275,7 @@ describe('Catalog Page', () => {
       expect(screen.getByText('Scaling Microservices with Kubernetes')).toBeInTheDocument();
     });
     expect(screen.getByText('Showing 1 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'track=Cloud+Native' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'track=Cloud+Native' }, { replace: true });
   });
 
   it('applies filters from URL on initial render', async () => {
@@ -310,7 +310,7 @@ describe('Catalog Page', () => {
       expect(screen.queryByText('Opening Keynote: The Future of AI')).not.toBeInTheDocument();
     });
     expect(screen.getByText('Showing 1 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'day=Day+1&category=Learning+Lab' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'day=Day+1&category=Learning+Lab' }, { replace: true });
   });
 
   it('shows no results message when no matches for combined filters', async () => {
@@ -329,6 +329,6 @@ describe('Catalog Page', () => {
       expect(screen.getByText('No sessions found')).toBeInTheDocument();
     });
     expect(screen.getByText('Showing 0 sessions')).toBeInTheDocument();
-    expect(mockUseNavigate).toHaveBeenCalledWith({ search: 'day=Day+2&speaker=Dr.+Evelyn+Reed' }, { replace: true });
+    expect(mockNavigate).toHaveBeenCalledWith({ search: 'day=Day+2&speaker=Dr.+Evelyn+Reed' }, { replace: true });
   });
 });

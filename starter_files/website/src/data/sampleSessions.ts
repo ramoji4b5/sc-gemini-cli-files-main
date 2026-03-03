@@ -1,4 +1,4 @@
-import { Session } from './sessions';
+import type { Session } from './types';
 
 export const sampleSessions: Session[] = [
   // Day 1

@@ -37,7 +37,7 @@ export const Catalog = () => {
   const allSpeakers = useMemo(() => {
     const speakers = SESSIONS.map(session => session.speaker).flat();
     return ['All', ...Array.from(new Set(speakers))].sort();
-  }, [SESSIONS]);
+  }, []);
 
   const allLevels = useMemo(() => {
     const levels = SESSIONS.map(session => session.details?.level).filter(Boolean) as string[];
@@ -45,12 +45,12 @@ export const Catalog = () => {
       const order = { 'Beginner': 1, 'Intermediate': 2, 'Advanced': 3, 'All': 0 };
       return (order[a as keyof typeof order] || 0) - (order[b as keyof typeof order] || 0);
     });
-  }, [SESSIONS]);
+  }, []);
 
   const allTracks = useMemo(() => {
     const tracks = SESSIONS.map(session => session.details?.tracks || []).flat();
     return ['All', ...Array.from(new Set(tracks))].sort();
-  }, [SESSIONS]);
+  }, []);
 
   const filteredSessions = useMemo<Session[]>(() => {
     return SESSIONS.filter(session => {
